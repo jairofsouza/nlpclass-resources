@@ -22,13 +22,13 @@ class Exercise(object):
         self.A[self.A>10]=10
         
     def propose(self):
-        self.display('A query is proposed to a generic IR system and the following rates are obtained\n')
-        self.display('Result\t\t'+'\t'.join(['Rank%d'%(k+1) for k in range(self.voters)]))
+        self.display('Uma consulta é enviada para um sistema de IR genérico e as seguintes listas são obtidas:\n')
+        self.display('Resultado\t'+'\t'.join(['Rank%d'%(k+1) for k in range(self.voters)]))
         for i_a in range(self.A.shape[0]):            
             a=alphabet[i_a]
             self.display(a+'\t\t'+'\t'.join(['%.2f'%self.A[i_a,k] for k in range(self.voters)]))
             
-        self.display('Compute the top-%d results using the MedRank, the Fagin\'s and the Fagin\'s threshold algorithms'%self.topK)        
+        self.display('\nCalcule os top-%d resultados usando os algoritmos MedRank, Fagin e o threshold de Fagin'%self.topK)        
     
     
     def sort_A(self):
@@ -42,7 +42,7 @@ class Exercise(object):
         
     def solve(self, debug=False):
         S,R=self.sort_A()
-        self.display('First, let us sort the two rankings\n')
+        self.display('Primeiro, vamos ordenar os dois rankings\n')
         self.display('\t\t'.join(['Rank%d\tScore%d'%(k+1,k+1) for k in range(self.voters)]))
         #self.display('Rank1\tScore1\t\tRank2\tScore2')
         for i_a in range(self.candidates):
@@ -70,24 +70,24 @@ class Exercise(object):
         self.display('=== MedRank ===')
         while len(Res)<self.topK:
             if k!=0 and debug:
-                self.display('List has not been completely filled, another iteration is needed\n')    
+                self.display('A lista não foi completamente preenchida, é necessária outra iteração\n')    
             if debug:
-                self.display('Rank position: %d'%(k+1))
+                self.display('Posição do rank: %d'%(k+1))
             for j in range(voters):
                 if debug:
-                    self.display('Analyzing %s'%R[k,j])
+                    self.display('Analisando %s'%R[k,j])
                 num[R[k,j]]+=1
     
                 if num[R[k,j]]>self.voters/2 and R[k,j] not in Res:
                     if debug:
-                        self.display('%s was found in more than half of the ranks: adding in the list'%R[k,j])
+                        self.display('%s foi encontrado em mais da metade dos ranks: inserindo na lista'%R[k,j])
                     Res.append(R[k,j])
                     if len(Res)==self.topK:
                         break
             
             k=k+1
         if debug:
-            self.display(' = final ranking = ')
+            self.display(' = ranking final = ')
         for i in range(self.topK):
             self.display(Res[i])
         
@@ -96,9 +96,9 @@ class Exercise(object):
     def solve_Fagin(self,S,R,k, debug=False):
     
         alph=np.unique(R[:k,:])
-        self.display('=== Fagin\'s algorithm ===')
+        self.display('=== Algoritmo de Fagin ===')
         if debug:
-            self.display('From Medrank, we know that we need to consider the first %d positions with sequential access'%k)
+            self.display('Com o Medrank, nós sabemos que precisamos considerar as primeiras %d posições com acesso sequencial'%k)
     
         #A_alph=np.array([A[np.where(alphabet==a])[0],:] for a in alph])
         #A_alph=np.array([A[np.where(alphabet==a)[0],:] for a in alph])
@@ -106,12 +106,12 @@ class Exercise(object):
         mean_alph=np.array([mean_alph[np.where(alphabet==a)[0][0]] for a in alph])
         
         if debug:
-            self.display('Using random access to retrieve the scores')
-            self.display('The results are %s'%str(alph))
-            self.display('With the following average score')
+            self.display('Usando o acesso randômico para retornar os scores')
+            self.display('Os resultados são %s'%str(alph))
+            self.display('Com o seguinte score médio')
             for i in range(mean_alph.size):
                 self.display('%s\t%.2f'%(alph[i],mean_alph[i]))
-            self.display('\n\n = final ranking =')
+            self.display('\n\n = ranking final =')
         idxs=np.flipud(np.argsort(mean_alph))
         
         self.display('Rank\tScore')
@@ -123,10 +123,10 @@ class Exercise(object):
         th=15
         res=Results(self.topK)
         seen={}
-        self.display('=== Fagin\'s threshold algorithm ===')            
+        self.display('=== Algoritmo de threshold de Fagin ===')            
         for k in range(self.A.shape[0]):
             if debug:
-                self.display('\n==> Rank position: %d'%(k+1))
+                self.display('\n==> Posição do Rank: %d'%(k+1))
             for j in range(self.voters):
                 
                 a=R[k,j]
@@ -139,24 +139,24 @@ class Exercise(object):
                     self.display('%s - score %.2f' %(a,score))
                 if res.num<self.topK or score>min_score:
                     if debug:                        
-                        self.display('Inserting %s'%a)
+                        self.display('Inserindo %s'%a)
                     res.put(a,score)
                     min_score=res.min_score()
                 if debug:
-                    self.display('\nCurrent top-K list')
+                    self.display('\nLista top-K atual')
                     self.display(str(res))
                     self.display()
             th=np.mean(S[k,:])
             if debug:
                 self.display('Threshold: %.2f'%th)
             if res.num<self.topK and debug:    
-                self.display('List not full')    
+                self.display('Lista não completa')    
             elif min_score<th and debug:
                 
-                self.display('Min score is lower than the threshold')    
+                self.display('Score mínimo é menor que o threshold')    
             if res.num>=self.topK and min_score>=th:
                 if debug:                
-                    self.display('Min score is higher than the threshold and the list was filled: stop\n')
+                    self.display('Score mínimo e maior que o threshold e a lista foi preenchidad: pare!\n')
                 break        
         
         self.display('Rank\tScore')
